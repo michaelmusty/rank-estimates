@@ -49,8 +49,7 @@ for E in curve_list do
   printf "\n%o\n", name;
   value1 := GE(E, 10^5);
   value2 := GE(E, 10^6);
-  value3 := GE(E, 10^7);
-  str *:= Sprintf("%o\t%o\t%o\t%o\t%o\n", name, r, value1, value2, value3);
+  str *:= Sprintf("%o\t%o\t%o\t%o\n", name, r, value1, value2);
 end for;
 str *:= "\n";
 Clow := conductors[1];
