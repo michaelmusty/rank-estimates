@@ -1,0 +1,44 @@
+// functions hidden to user
+function SE(E, prime_list)
+  N := prime_list[#prime_list];
+  RR := RealField(20);
+  sum := RR!0;
+  coeffs := Eltseq(E);
+  for p in prime_list do
+    FFp := FiniteField(p);
+    coeffsFFp := [];
+    for coeff in coeffs do
+      Append(~coeffsFFp, FFp!coeff);
+    end for;
+    if IsEllipticCurve(coeffsFFp) then
+      E := EllipticCurve(coeffsFFp);
+      num_points := #E(FFp);
+      sum +:= RR!(1-(p-1)/num_points)*RR!Log(p);
+    end if;
+  end for;
+  return RR!sum;
+end function;
+
+// intrinsics
+intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> Any
+  {Computes rank estimate S_E(N) for curve s in database up to prime bound N. Assumes working directory is RankDatabase. The idea here is to not discard previously computed partial sum.}
+  directory := GetCurrentDirectory();
+  name := s`RankDatabaseName;
+  n := s`RankDatabaseN; // current prime bound
+  E := EllipticCurve(Sprintf("%o", name));
+  assert Rank(E) eq s`RankDatabaseRank;
+  if n lt N then // current prime bound less than desired prime bound
+    if n le 1 then // we have not computed an estimate previously
+      prime_list := PrimesUpTo(N);
+      s`RankDatabaseValue := SE(E, prime_list);
+      s`RankDatabaseN := N;
+    else // we have computed a previous estimate and should thus exclude some primes
+      prime_list := PrimesInInterval(n+1, N);
+      s`RankDatabaseValue +:= SE(E, prime_list);
+      s`RankDatabaseN := N;
+    end if;
+  end if;
+  RankDatabaseWriteObject(s);
+  returnText := Sprintf("\nRankDatabaseObject %o written to %o.\n", name, directory);
+  return returnText;
+end intrinsic;

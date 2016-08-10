@@ -38,5 +38,5 @@ intrinsic Print(s::RankDatabaseObject)
   printf "  Cremona Name = %o\n", s`RankDatabaseName;
   printf "  Rank = %o\n", s`RankDatabaseRank;
   printf "  N = %o\n", s`RankDatabaseN;
-  printf "  G_E(N) = %o\n", s`RankDatabaseValue;
+  printf "  S_E(N) = %o\n", s`RankDatabaseValue;
 end intrinsic;
