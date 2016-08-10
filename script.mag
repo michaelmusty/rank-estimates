@@ -41,7 +41,7 @@ end for;
 
 // main
 str := "\n";
-str *:= "Name\tRank\tN=10^5\tN=10^6\t10^7\n\n";
+str *:= "Name\tRank\tN=10^5\tN=10^6\n\n";
 for E in curve_list do
   r := Rank(E);
   c := Conductor(E);
