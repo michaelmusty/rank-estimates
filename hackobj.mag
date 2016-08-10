@@ -1,0 +1,42 @@
+declare type RankDatabaseObject;
+declare attributes RankDatabaseObject:
+  RankDatabaseName, // MonStgElt
+  RankDatabaseRank, // RngIntElt
+  RankDatabaseN, // RngIntElt
+  RankDatabaseValue; // FldReElt
+
+intrinsic 'eq'(s::RankDatabaseObject, t::RankDatabaseObject) -> BoolElt
+  {Return whether s is equal to t.}
+  isSame := true;
+  for attr in GetAttributes(Type(s)) do
+    if Type(s``attr) ne Type(t``attr) then
+      isSame := false;
+    elif s``attr ne t``attr then
+      isSame := false;
+    end if;
+  end for;
+  return isSame;
+end intrinsic;
+
+intrinsic RankDatabaseObjectInitialize() -> RankDatabaseObject
+  {Create an empty RankDatabaseObject.}
+  s := New(RankDatabaseObject);
+  //  attributes := GetAttributes(RankDatabaseObject);
+  //  for attr in attributes do
+  //    s``attr := "";
+  //  end for;
+  s`RankDatabaseName := "";
+  s`RankDatabaseRank := -1;
+  s`RankDatabaseN := -1;
+  s`RankDatabaseValue := -1;
+  return s;
+end intrinsic;
+
+intrinsic Print(s::RankDatabaseObject)
+  {Print RankDatabaseObject}
+  printf "RankDatabaseObject %o:\n", s`RankDatabaseName;
+  printf "  Cremona Name = %o\n", s`RankDatabaseName;
+  printf "  Rank = %o\n", s`RankDatabaseRank;
+  printf "  N = %o\n", s`RankDatabaseN;
+  printf "  G_E(N) = %o\n", s`RankDatabaseValue;
+end intrinsic;

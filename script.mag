@@ -1,59 +1,7 @@
-// user input
-conductors := [1..11];
-db := CremonaDatabase();
+Attach("hackobj.mag");
+Attach("database.mag");
+Attach("estimates.mag");
 
-// some functions
-function SE(E, N)
-  CC := ComplexField(20);
-  prime_list := PrimesUpTo(N);
-  sum := CC!0;
-  coeffs := Eltseq(E);
-  for p in prime_list do
-    FFp := FiniteField(p);
-    coeffsFFp := [];
-    for coeff in coeffs do
-      Append(~coeffsFFp, FFp!coeff);
-    end for;
-    if IsEllipticCurve(coeffsFFp) then
-      E := EllipticCurve(coeffsFFp);
-      num_points := #E(FFp);
-      sum +:= CC!(1-(p-1)/num_points)*CC!Log(p);
-    end if;
-  end for;
-  return CC!sum;
-end function;
-
-function GE(E, N)
-  CC := ComplexField(20);
-  return CC!(1/(Log(N)-2))*SE(E, N);
-end function;
-
-// create list of curves to test
-curve_list := [];
-for c in conductors do
-  for i in {1..NumberOfIsogenyClasses(db, c)} do
-    for j in {1..NumberOfCurves(db, c, i)} do
-      E := EllipticCurve(db, c, i, j);
-      Append(~curve_list, E);
-    end for;
-  end for;
-end for;
-
-// main
-str := "\n";
-str *:= "Name\tRank\tN=10^5\tN=10^6\n\n";
-for E in curve_list do
-  r := Rank(E);
-  c := Conductor(E);
-  name := CremonaReference(db, E);
-  printf "\n%o\n", name;
-  value1 := GE(E, 10^5);
-  value2 := GE(E, 10^6);
-  value3 := GE(E, 10^7);
-  str *:= Sprintf("%o\t%o\t%o\t%o\t%o\n", name, r, value1, value2, value3);
-end for;
-str *:= "\n";
-Clow := conductors[1];
-Chigh := conductors[#conductors];
-filename := Sprintf("ConductorsFrom%oTo%o.txt", Clow, Chigh);
-Write(filename, str : Overwrite := true);
+// ChangeDirectory("/Users/mjmusty/Dropbox/GitHub/rank-estimates/RankDatabase");
+// f := RankDatabaseFilenames();
+RankDatabaseGenerate();
