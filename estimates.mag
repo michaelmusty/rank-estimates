@@ -42,3 +42,16 @@ intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> An
   returnText := Sprintf("\nRankDatabaseObject %o written to %o.\n", name, directory);
   return returnText;
 end intrinsic;
+
+intrinsic RankDatabaseStatus() -> Any
+  {Returns several SeqEnums of RankDatabaseObjects: computed, TODO etc,. Also prints some information about the status of the database. Assumes working directory is RankDatabase.}
+  f := RankDatabaseFilenames();
+  computed := [];
+  for i in {1..#f} do
+    s := RankDatabaseAccessEntry(f[i]);
+    if s`RankDatabaseValue ne -1 then
+      Append(~computed, s);
+    end if;
+  end for;
+  return computed;
+end intrinsic;
