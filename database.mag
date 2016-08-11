@@ -28,7 +28,6 @@ end intrinsic;
 intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
   {Write a (magma loadable) RankDatabaseObject s to s`RankDatabaseName.mag in working directory.}
   directory := GetCurrentDirectory();
-  ChangeDirectory(directory);
   file := Sprintf("s := RankDatabaseObjectInitialize();\n");
   file *:= Sprintf("s`RankDatabaseName := \"%o\";\n", s`RankDatabaseName);
   file *:= Sprintf("s`RankDatabaseRank := %o;\n", s`RankDatabaseRank);
@@ -41,26 +40,30 @@ intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
   return returnText;
 end intrinsic;
 
-intrinsic RankDatabaseGenerate() -> MonStgElt
-  {Generate the folder RankDatabase with all RankDatabaseObject files for the Cremona Database. This assumes that you want to create the database in the current directory and the optional directory should point where you want it if this is not the case. After the intrinsic is called the new current directory is RankDatabase.}
-  System("mkdir RankDatabase");
+intrinsic RankDatabaseGenerate(lower::RngIntElt, upper::RngIntElt) -> MonStgElt
+  {Generate RankDatabaseObject files for the Cremona Database organized by conductor. This assumes that your working directory is the repository rank-estimates.}
   directory := GetCurrentDirectory();
-  ChangeDirectory(directory cat "/RankDatabase/");
   db := CremonaDatabase();
-  for c in {1..400000} do
-    for i in {1..NumberOfIsogenyClasses(db, c)} do
-      for j in {1..NumberOfCurves(db, c, i)} do
-        E := EllipticCurve(db, c, i, j);
-        name := CremonaReference(db, E);
-        rank := Rank(E);
-        s := RankDatabaseObjectInitialize();
-        s`RankDatabaseName := name;
-        s`RankDatabaseRank := rank;
-        RankDatabaseWriteObject(s);
+  for c in {lower..upper} do
+    if NumberOfIsogenyClasses(db, c) gt 0 then
+      ChangeDirectory(directory cat "/RankDatabase/");
+      System(Sprintf("mkdir %o", c));
+      ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", c));
+      for i in {1..NumberOfIsogenyClasses(db, c)} do
+        for j in {1..NumberOfCurves(db, c, i)} do
+          E := EllipticCurve(db, c, i, j);
+          name := CremonaReference(db, E);
+          rank := Rank(E);
+          s := RankDatabaseObjectInitialize();
+          s`RankDatabaseName := name;
+          s`RankDatabaseRank := rank;
+          RankDatabaseWriteObject(s);
+        end for;
       end for;
-    end for;
+    end if;
   end for;
-  returnText := Sprintf("RankDatabase constructed in directory %o/RankDatabase\n", directory);
+  ChangeDirectory(directory);
+  returnText := Sprintf("RankDatabase for conductors %o to %o constructed in directory %o/RankDatabase\n", lower, upper, directory);
   returnText *:= Sprintf("current directory is %o\n", GetCurrentDirectory());
   return returnText;
 end intrinsic;
