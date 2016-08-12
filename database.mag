@@ -9,7 +9,7 @@ end intrinsic;
 intrinsic RankDatabaseFilenames(c::RngIntElt) -> SeqEnum[MonStgElt]
   {Returns the filenames in RankDatabase/c/ as a SeqEnum. This assumes the current directory is the repository rank-estimates.}
   directory := GetCurrentDirectory();
-  ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", d));
+  ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", c));
   ls := Pipe("ls", "");
   filenames := Split(ls, "\n");
   ChangeDirectory(directory);
