@@ -21,37 +21,29 @@ end function;
 
 // intrinsics
 intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> Any
-  {Computes rank estimate S_E(N) for curve s in database up to prime bound N. Assumes working directory is RankDatabase. The idea here is to not discard previously computed partial sum.}
+  {Computes rank estimate S_E(N) for curve s in database up to desired prime bound N. Assumes working directory is repository rank-estimates. The idea here is to not discard previously computed partial sum.}
   directory := GetCurrentDirectory();
   name := s`RankDatabaseName;
+  c := s`RankDatabaseConductor;
   n := s`RankDatabaseN; // current prime bound
   E := EllipticCurve(Sprintf("%o", name));
   assert Rank(E) eq s`RankDatabaseRank;
   if n lt N then // current prime bound less than desired prime bound
     if n le 1 then // we have not computed an estimate previously
       prime_list := PrimesUpTo(N);
-      s`RankDatabaseValue := SE(E, prime_list);
-      s`RankDatabaseN := N;
     else // we have computed a previous estimate and should thus exclude some primes
       prime_list := PrimesInInterval(n+1, N);
+    end if;
       s`RankDatabaseValue +:= SE(E, prime_list);
       s`RankDatabaseN := N;
-    end if;
   end if;
+  if s`RankDatabaseN gt 1 then
+    s`RankDatabaseComputed := true;
+  end if;
+  ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", c));
   RankDatabaseWriteObject(s);
+  ChangeDirectory(directory);
   returnText := Sprintf("\nRankDatabaseObject %o written to %o.\n", name, directory);
+  returnText *:= Sprintf("Current directory is %o.\n", GetCurrentDirectory());
   return returnText;
-end intrinsic;
-
-intrinsic RankDatabaseStatus() -> Any
-  {Returns several SeqEnums of RankDatabaseObjects: computed, TODO etc,. Also prints some information about the status of the database. Assumes working directory is RankDatabase.}
-  f := RankDatabaseFilenames();
-  computed := [];
-  for i in {1..#f} do
-    s := RankDatabaseAccessEntry(f[i]);
-    if s`RankDatabaseValue ne -1 then
-      Append(~computed, s);
-    end if;
-  end for;
-  return computed;
 end intrinsic;

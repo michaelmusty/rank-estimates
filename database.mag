@@ -6,23 +6,15 @@ intrinsic RankDatabaseAccessEntry(filename::MonStgElt) -> Any
   return s;
 end intrinsic;
 
-intrinsic RankDatabaseFilenames() -> SeqEnum[MonStgElt]
-  {Returns the filenames in RankDatabase as a SeqEnum. This assumes the current directory is RankDatabase.}
+intrinsic RankDatabaseFilenames(c::RngIntElt) -> SeqEnum[MonStgElt]
+  {Returns the filenames in RankDatabase/c/ as a SeqEnum. This assumes the current directory is the repository rank-estimates.}
   directory := GetCurrentDirectory();
+  ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", d));
   ls := Pipe("ls", "");
   filenames := Split(ls, "\n");
+  ChangeDirectory(directory);
+  printf "current directory is %o\n", GetCurrentDirectory();
   return filenames;
-end intrinsic;
-
-intrinsic RankDatabaseDeleteLineBreaks(str::MonStgElt) -> MonStgElt
-  {Given a string str possibly with line breaks return a string without the line breaks.}
-  str_new := "";
-  for i in [1..#str] do
-    if str[i] ne "\n" then
-      str_new *:= str[i];
-    end if;
-  end for;
-  return str_new;
 end intrinsic;
 
 intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
@@ -30,6 +22,8 @@ intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
   directory := GetCurrentDirectory();
   file := Sprintf("s := RankDatabaseObjectInitialize();\n");
   file *:= Sprintf("s`RankDatabaseName := \"%o\";\n", s`RankDatabaseName);
+  file *:= Sprintf("s`RankDatabaseComputed := %o;\n", s`RankDatabaseComputed);
+  file *:= Sprintf("s`RankDatabaseConductor := %o;\n", s`RankDatabaseConductor);
   file *:= Sprintf("s`RankDatabaseRank := %o;\n", s`RankDatabaseRank);
   file *:= Sprintf("s`RankDatabaseN := %o;\n", s`RankDatabaseN);
   file *:= Sprintf("s`RankDatabaseValue := %o;\n", s`RankDatabaseValue);
@@ -54,9 +48,11 @@ intrinsic RankDatabaseGenerate(lower::RngIntElt, upper::RngIntElt) -> MonStgElt
           E := EllipticCurve(db, c, i, j);
           name := CremonaReference(db, E);
           rank := Rank(E);
+          conductor := Conductor(E);
           s := RankDatabaseObjectInitialize();
           s`RankDatabaseName := name;
           s`RankDatabaseRank := rank;
+          s`RankDatabaseConductor := conductor;
           RankDatabaseWriteObject(s);
         end for;
       end for;
@@ -67,3 +63,7 @@ intrinsic RankDatabaseGenerate(lower::RngIntElt, upper::RngIntElt) -> MonStgElt
   returnText *:= Sprintf("current directory is %o\n", GetCurrentDirectory());
   return returnText;
 end intrinsic;
+
+// intrinsic RankDatabaseStatus() -> Any
+//  {Returns several SeqEnums of RankDatabaseObjects: computed, TODO etc,. Also prints some information about the status of the database. Assumes working directory is RankDatabase.}
+// end intrinsic;

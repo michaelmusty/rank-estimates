@@ -1,6 +1,8 @@
 declare type RankDatabaseObject;
 declare attributes RankDatabaseObject:
   RankDatabaseName, // MonStgElt
+  RankDatabaseComputed, // BoolElt
+  RankDatabaseConductor, // RngIntElt
   RankDatabaseRank, // RngIntElt
   RankDatabaseN, // RngIntElt
   RankDatabaseValue; // FldReElt
@@ -21,21 +23,24 @@ end intrinsic;
 intrinsic RankDatabaseObjectInitialize() -> RankDatabaseObject
   {Create an empty RankDatabaseObject.}
   s := New(RankDatabaseObject);
-  //  attributes := GetAttributes(RankDatabaseObject);
-  //  for attr in attributes do
-  //    s``attr := "";
-  //  end for;
   s`RankDatabaseName := "";
-  s`RankDatabaseRank := -1;
-  s`RankDatabaseN := -1;
-  s`RankDatabaseValue := -1;
+  s`RankDatabaseComputed := false;
+  s`RankDatabaseConductor := 0;
+  s`RankDatabaseRank := 0;
+  s`RankDatabaseN := 0;
+  s`RankDatabaseValue := 0;
   return s;
 end intrinsic;
 
 intrinsic Print(s::RankDatabaseObject)
   {Print RankDatabaseObject}
-  printf "RankDatabaseObject %o:\n", s`RankDatabaseName;
+  if s`RankDatabaseComputed then
+    printf "RankDatabaseObject %o has been computed:\n", s`RankDatabaseName;
+  else
+    printf "RankDatabaseObject %o has only been initialized:\n", s`RankDatabaseName;
+  end if;
   printf "  Cremona Name = %o\n", s`RankDatabaseName;
+  printf "  Conductor = %o\n", s`RankDatabaseConductor;
   printf "  Rank = %o\n", s`RankDatabaseRank;
   printf "  N = %o\n", s`RankDatabaseN;
   printf "  S_E(N) = %o\n", s`RankDatabaseValue;
