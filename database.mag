@@ -30,7 +30,7 @@ intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
   file *:= Sprintf("return s;");
   filename := Sprintf("%o" cat ".mag", s`RankDatabaseName);
   Write(filename, file : Overwrite := true);
-  returnText := Sprintf("%o written in directory %o\n", filename, directory);
+  returnText := Sprintf("%o written", filename);
   return returnText;
 end intrinsic;
 

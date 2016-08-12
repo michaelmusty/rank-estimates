@@ -20,7 +20,7 @@ function SE(E, prime_list)
 end function;
 
 // intrinsics
-intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> Any
+intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> MonStgElt
   {Computes rank estimate S_E(N) for curve s in database up to desired prime bound N. Assumes working directory is repository rank-estimates. The idea here is to not discard previously computed partial sum.}
   directory := GetCurrentDirectory();
   name := s`RankDatabaseName;
@@ -43,7 +43,37 @@ intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> An
   ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", c));
   RankDatabaseWriteObject(s);
   ChangeDirectory(directory);
-  returnText := Sprintf("\nRankDatabaseObject %o written to %o.\n", name, directory);
-  returnText *:= Sprintf("Current directory is %o.\n", GetCurrentDirectory());
+  returnText := Sprintf("%o written\n", name);
+  return returnText;
+end intrinsic;
+
+intrinsic RankDatabaseComputeBetweenConductors(clow::RngIntElt, chigh::RngIntElt, N::RngIntElt) -> MonStgElt
+  {Computes rank estimate S_E(N) for up to desired prime bound N for curves in database with conductors between clow and chigh. Assumes working directory is repository rank-estimates.}
+  directory := GetCurrentDirectory();
+  ChangeDirectory(directory cat "/RankDatabase/");
+  ls := Pipe("ls", "");
+  conductors := Split(ls, "\n");
+  Cs := [];
+  for i in {1..#conductors} do
+    test := StringToInteger(conductors[i]);
+    if test ge clow and test le chigh then
+      Append(~Cs, test);
+    end if;
+  end for;
+  for i in {1..#Cs} do
+    ChangeDirectory(directory);
+    f := RankDatabaseFilenames(Cs[i]);
+    for j in {1..#f} do
+      ChangeDirectory(directory cat Sprintf("/RankDatabase/%o/", Cs[i]));
+      s := RankDatabaseAccessEntry(f[j]);
+      ChangeDirectory(directory);
+      RankDatabaseComputeEstimate(s, N);
+    end for;
+  end for;
+  ChangeDirectory(directory);
+  returnText := "\nEstimates computed:\n";
+  returnText *:= Sprintf("  N = %o\n", N);
+  returnText *:= Sprintf("  conductor lower bound = %o\n", clow);
+  returnText *:= Sprintf("  conductor upper bound = %o\n", chigh);
   return returnText;
 end intrinsic;
