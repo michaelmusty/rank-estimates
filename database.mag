@@ -1,5 +1,5 @@
 intrinsic RankDatabaseAccessEntry(filename::MonStgElt) -> Any
-  {Load the RankDatabaseObject in filename.}
+  {Load the RankDatabaseObject in filename. This assumes the current directory is /RankDatabase/c/.}
   str := Read(filename);
   s := eval str;
   assert Type(s) eq RankDatabaseObject;
@@ -21,17 +21,33 @@ intrinsic RankDatabaseWriteObject(s::RankDatabaseObject) -> MonStgElt
   {Write a (magma loadable) RankDatabaseObject s to s`RankDatabaseName.mag in working directory.}
   directory := GetCurrentDirectory();
   file := Sprintf("s := RankDatabaseObjectInitialize();\n");
-  file *:= Sprintf("s`RankDatabaseName := \"%o\";\n", s`RankDatabaseName);
+  if s`RankDatabaseCoeffs eq [] then
+    file *:= Sprintf("s`RankDatabaseName := \"%o\";\n", s`RankDatabaseName);
+  else
+    file *:= Sprintf("s`RankDatabaseName := %o;\n", s`RankDatabaseCoeffs);
+  end if;
+  file *:= Sprintf("s`RankDatabaseCoeffs := %o;\n", s`RankDatabaseCoeffs);
   file *:= Sprintf("s`RankDatabaseComputed := %o;\n", s`RankDatabaseComputed);
   file *:= Sprintf("s`RankDatabaseConductor := %o;\n", s`RankDatabaseConductor);
   file *:= Sprintf("s`RankDatabaseRank := %o;\n", s`RankDatabaseRank);
   file *:= Sprintf("s`RankDatabaseN := %o;\n", s`RankDatabaseN);
   file *:= Sprintf("s`RankDatabaseValue := %o;\n", s`RankDatabaseValue);
+  file *:= Sprintf("s`RankDatabaseEstimate := %o;\n", s`RankDatabaseEstimate);
   file *:= Sprintf("return s;");
   filename := Sprintf("%o" cat ".mag", s`RankDatabaseName);
   Write(filename, file : Overwrite := true);
   returnText := Sprintf("%o written", filename);
   return returnText;
+end intrinsic;
+
+intrinsic RankDatabaseWriteCurve(E::CrvEll) -> RankDatabaseObject
+  {Given a CrvEll E return a RankDatabaseObject s.}
+  s := RankDatabaseObjectInitialize();
+  coeffs := Eltseq(E);
+  s`RankDatabaseName := Sprintf("%o", coeffs);
+  s`RankDatabaseRank := Rank(E);
+  s`RankDatabaseConductor := Conductor(E);
+  return s;
 end intrinsic;
 
 intrinsic RankDatabaseGenerate(lower::RngIntElt, upper::RngIntElt) -> MonStgElt

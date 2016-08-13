@@ -1,8 +1,9 @@
 s := RankDatabaseObjectInitialize();
 s`RankDatabaseName := "19a1";
-s`RankDatabaseComputed := false;
+s`RankDatabaseComputed := true;
 s`RankDatabaseConductor := 19;
 s`RankDatabaseRank := 0;
-s`RankDatabaseN := 0;
-s`RankDatabaseValue := 0;
+s`RankDatabaseN := 1000000;
+s`RankDatabaseValue := 8.2593923764344950313;
+s`RankDatabaseEstimate := 0.69903066985874950996;
 return s;

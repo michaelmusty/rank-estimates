@@ -1,11 +1,13 @@
 declare type RankDatabaseObject;
 declare attributes RankDatabaseObject:
   RankDatabaseName, // MonStgElt
+  RankDatabaseCoeffs, // SeqEnum
   RankDatabaseComputed, // BoolElt
   RankDatabaseConductor, // RngIntElt
   RankDatabaseRank, // RngIntElt
   RankDatabaseN, // RngIntElt
-  RankDatabaseValue; // FldReElt
+  RankDatabaseValue, // FldReElt
+  RankDatabaseEstimate; // FldReElt
 
 intrinsic 'eq'(s::RankDatabaseObject, t::RankDatabaseObject) -> BoolElt
   {Return whether s is equal to t.}
@@ -24,11 +26,13 @@ intrinsic RankDatabaseObjectInitialize() -> RankDatabaseObject
   {Create an empty RankDatabaseObject.}
   s := New(RankDatabaseObject);
   s`RankDatabaseName := "";
+  s`RankDatabaseCoeffs := [];
   s`RankDatabaseComputed := false;
   s`RankDatabaseConductor := 0;
   s`RankDatabaseRank := 0;
   s`RankDatabaseN := 0;
   s`RankDatabaseValue := 0;
+  s`RankDatabaseEstimate := 0;
   return s;
 end intrinsic;
 
@@ -44,4 +48,5 @@ intrinsic Print(s::RankDatabaseObject)
   printf "  Rank = %o\n", s`RankDatabaseRank;
   printf "  N = %o\n", s`RankDatabaseN;
   printf "  S_E(N) = %o\n", s`RankDatabaseValue;
+  printf "  G_E(N) = %o\n", s`RankDatabaseEstimate;
 end intrinsic;

@@ -1,8 +1,10 @@
 s := RankDatabaseObjectInitialize();
 s`RankDatabaseName := "11a2";
+s`RankDatabaseCoeffs := [];
 s`RankDatabaseComputed := true;
 s`RankDatabaseConductor := 11;
 s`RankDatabaseRank := 0;
-s`RankDatabaseN := 100000;
-s`RankDatabaseValue := 7.1986549318555712785;
+s`RankDatabaseN := 1000000;
+s`RankDatabaseValue := 8.67802479040441315379999999999;
+s`RankDatabaseEstimate := 0.734461471959509601510000000000;
 return s;

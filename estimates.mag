@@ -1,10 +1,11 @@
-// functions hidden to user
-function SE(E, prime_list)
+intrinsic SE(E::CrvEll, prime_list::SeqEnum) -> FldReElt
+  {Given a CrvEll E and a list of primes return the partial sum S_E(N) where N is the largest prime in the prime_list.}
   N := prime_list[#prime_list];
   RR := RealField(20);
   sum := RR!0;
   coeffs := Eltseq(E);
   for p in prime_list do
+    assert IsPrime(p);
     FFp := FiniteField(p);
     coeffsFFp := [];
     for coeff in coeffs do
@@ -17,16 +18,25 @@ function SE(E, prime_list)
     end if;
   end for;
   return RR!sum;
-end function;
+end intrinsic;
 
-// intrinsics
+intrinsic GE(SE::FldReElt, N::RngIntElt) -> FldReElt
+  {Given the partial sum SE and a prime bound N, return the partial sum G_E(N).}
+  RR := RealField(20);
+  return RR!(1/(Log(N)-2))*SE;
+end intrinsic;
+
 intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> MonStgElt
   {Computes rank estimate S_E(N) for curve s in database up to desired prime bound N. Assumes working directory is repository rank-estimates. The idea here is to not discard previously computed partial sum.}
   directory := GetCurrentDirectory();
   name := s`RankDatabaseName;
   c := s`RankDatabaseConductor;
   n := s`RankDatabaseN; // current prime bound
-  E := EllipticCurve(Sprintf("%o", name));
+  if s`RankDatabaseCoeffs eq [] then
+    E := EllipticCurve(Sprintf("%o", name));
+  else
+    E := EllipticCurve(Sprintf("%o", s`RankDatabaseCoeffs));
+  end if;
   assert Rank(E) eq s`RankDatabaseRank;
   if n lt N then // current prime bound less than desired prime bound
     if n le 1 then // we have not computed an estimate previously
@@ -36,6 +46,7 @@ intrinsic RankDatabaseComputeEstimate(s::RankDatabaseObject, N::RngIntElt) -> Mo
     end if;
       s`RankDatabaseValue +:= SE(E, prime_list);
       s`RankDatabaseN := N;
+      s`RankDatabaseEstimate := GE(s`RankDatabaseValue, prime_list[#prime_list]);
   end if;
   if s`RankDatabaseN gt 1 then
     s`RankDatabaseComputed := true;
