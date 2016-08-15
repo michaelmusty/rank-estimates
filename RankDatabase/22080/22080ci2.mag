@@ -1,0 +1,10 @@
+s := RankDatabaseObjectInitialize();
+s`RankDatabaseName := "22080ci2";
+s`RankDatabaseCoeffs := [];
+s`RankDatabaseComputed := false;
+s`RankDatabaseConductor := 22080;
+s`RankDatabaseRank := 0;
+s`RankDatabaseN := 0;
+s`RankDatabaseValue := 0;
+s`RankDatabaseEstimate := 0;
+return s;
